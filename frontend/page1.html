@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div id="main">
+            <div id="content">
+                <h1>Join as</h1>
+                <div id="buttons">
+                    <div class="button" id="b1">
+                        <a href="organization.html">Organization</a>
+                    </div>
+                    <div class="button" id="b2">
+                        <a href="page2.html">Stake Holder</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let buttons = document.getElementsByClassName("button")
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].addEventListener("mouseover", () => {
+                    buttons[i].style.transition = "ease 0.25s"
+                    buttons[i].style.border = "2px solid white"
+                    buttons[i].style.backgroundColor = "black"
+                    buttons[i].style.color = "white"
+                    buttons[i].style.transform = "scale(1.1)"
+                })
+                buttons[i].addEventListener("mouseout", () => {
+                    buttons[i].style.transition = "ease 0.25s"
+                    buttons[i].style.border = "2px solid #112bef"
+                    buttons[i].style.backgroundColor = "#112bef"
+                    buttons[i].style.color = "black"
+                    buttons[i].style.transform = "scale(1)"
+                })
+            }
+        </script>
+    </body>
+</html>

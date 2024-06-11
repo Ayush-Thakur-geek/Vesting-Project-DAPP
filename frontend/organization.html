@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+
+        <link rel="stylesheet" href="organization_style.css" />
+    </head>
+    <body>
+        <div id="main">
+            <div id="registration">
+                <div class="title">
+                    <h1>Register Organization</h1>
+                </div>
+                <div class="inputs">
+                    <div class="input">
+                        <input type="text" id="registration_name" />
+                        <h3>Name</h3>
+                    </div>
+                    <div class="input">
+                        <input type="text" id="registration_token_address" />
+                        <h3>Token address</h3>
+                    </div>
+                </div>
+                <div class="btn" id="register_submit_btn">
+                    <h3 class="instruction">Submit</h3>
+                    <div class="color"></div>
+                </div>
+            </div>
+            <div id="addStakeHolder">
+                <div class="title">
+                    <h1>Add a stake holder</h1>
+                </div>
+                <div class="inputs">
+                    <div class="input">
+                        <input type="text" id="s_type" />
+                        <h3>Type</h3>
+                    </div>
+                    <div class="input">
+                        <input type="text" id="s_address" />
+                        <h3>Holder's Address</h3>
+                    </div>
+                    <div class="input">
+                        <input type="text" id="period" />
+                        <h3>Vesting period</h3>
+                    </div>
+                    <div class="input">
+                        <input type="text" id="tokens" />
+                        <h3>Tokens</h3>
+                    </div>
+                    <div class="input">
+                        <input type="text" id="whitelist" />
+                        <h3>Whitelist</h3>
+                    </div>
+                </div>
+                <div class="btn" id="s_holder_submit_btn">
+                    <h3 class="instruction">Submit</h3>
+                    <div class="color"></div>
+                </div>
+            </div>
+        </div>
+        <script
+            src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"
+            type="application/javascript"
+        ></script>
+        <script src="organization_script.js"></script>
+        <script>
+            let btn = document.getElementsByClassName("btn")
+            let btn_color = document.getElementsByClassName("color")
+            let instruction = document.getElementsByClassName("instruction")
+            for (let i = 0; i < btn.length; i++) {
+                btn[i].addEventListener("mouseover", () => {
+                    btn_color[i].style.transition = "ease 0.5s"
+                    instruction[i].style.transition = "ease 0.5s"
+                    btn_color[i].style.top = "0"
+                    instruction[i].style.color = "white"
+                })
+                btn[i].addEventListener("mouseleave", () => {
+                    btn_color[i].style.transition = "ease 0.5s"
+                    instruction[i].style.transition = "ease 0.5s"
+                    btn_color[i].style.top = "100%"
+                    instruction[i].style.color = "black"
+                })
+            }
+        </script>
+    </body>
+</html>

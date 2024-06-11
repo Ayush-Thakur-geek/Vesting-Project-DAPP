@@ -1,0 +1,149 @@
+/* Reset default styles */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+}
+
+/* Add your custom styles below */
+#main {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#verify {
+    position: absolute;
+    margin: 0;
+    width: 60%;
+    height: 60%;
+    padding: 30px;
+}
+
+.title {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    font-size: 2em;
+    padding-bottom: 20px;
+    font-weight: 200 !important;
+}
+
+.in {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 300;
+    gap: 20px;
+}
+
+.in input {
+    width: 40%;
+    height: 30px;
+    font-size: 1.5em;
+    padding: 10px;
+    border: 1px solid #000000;
+    border-radius: 10px;
+}
+
+.btn {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 120px;
+    height: 50px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: 1px solid black;
+    overflow: hidden;
+}
+
+.instruction {
+    font-size: 1.6em;
+    font-weight: 100;
+    z-index: 1;
+}
+
+.color {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #112bef;
+    z-index: 0;
+    transition: 0.5s;
+    border-radius: 10px;
+    top: 100%;
+}
+
+/* claiming page  */
+
+#claim_page {
+    position: absolute;
+    display: none;
+    margin: 0;
+    width: 60%;
+    height: 60%;
+    padding: 30px;
+    /* opacity: 0; */
+}
+
+/* messages */
+
+.msg_box {
+    width: 100%;
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    padding-top: 20px;
+}
+
+.msg {
+    position: absolute;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    border: 1px solid black;
+    font-size: 13px;
+    top: -100%;
+}
+
+#verify_msg1 {
+    width: 200px;
+}
+
+#verify_msg2 {
+    width: 220px;
+}
+
+#claim_msg1 {
+    width: 200px;
+}
+
+#claim_msg2 {
+    width: 300px;
+}
+
+#claim_msg3 {
+    width: 150px;
+}
+
+#claim_msg4 {
+    width: 300px;
+}
