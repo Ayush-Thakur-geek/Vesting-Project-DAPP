@@ -7,7 +7,7 @@ let main = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     await provider.send("eth_requestAccounts", [])
     const signer = provider.getSigner()
-    const contractAddress = "0xB7aA587680008542e9EB6ba6703745e0d7B3529f"
+    const contractAddress = "0x77F449057ff9f81c7B17Ea0B33d4ffCc5B8F8071"
     const contractAbi = [
         {
             inputs: [
@@ -85,7 +85,7 @@ let main = async () => {
                             type: "address",
                         },
                     ],
-                    internalType: "struct Vesting.organization",
+                    internalType: "struct Vesting.Organization",
                     name: "",
                     type: "tuple",
                 },
@@ -136,7 +136,7 @@ let main = async () => {
                             type: "bool",
                         },
                     ],
-                    internalType: "struct Vesting.stakeHolder",
+                    internalType: "struct Vesting.StakeHolder",
                     name: "",
                     type: "tuple",
                 },
@@ -169,12 +169,17 @@ let main = async () => {
             inputs: [
                 {
                     internalType: "address",
+                    name: "_organizationAddress",
+                    type: "address",
+                },
+                {
+                    internalType: "address",
                     name: "_stakeHolderAddress",
                     type: "address",
                 },
             ],
             name: "removeStakeHolder",
-            outputs: [{ internalType: "address", name: "", type: "address" }],
+            outputs: [],
             stateMutability: "nonpayable",
             type: "function",
         },
@@ -262,6 +267,11 @@ let add_s_holder = () => {
         let period = document.getElementById("period").value
         let tokens = document.getElementById("tokens").value
         let whitelist = document.getElementById("whitelist").value
+        if (whitelist.toLowerCase() === "true") {
+            whitelist = true
+        } else {
+            whitelist = false
+        }
         try {
             await contractInstance.addStakeHolder(
                 organizationAddress,
@@ -269,7 +279,7 @@ let add_s_holder = () => {
                 s_address,
                 period,
                 tokens,
-                whitelist.toLowerCase(),
+                whitelist,
             )
             console.log("Success")
         } catch (error) {

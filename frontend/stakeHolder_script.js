@@ -8,7 +8,7 @@ let main = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     await provider.send("eth_requestAccounts", [])
     const signer = provider.getSigner()
-    const contractAddress = "0xB7aA587680008542e9EB6ba6703745e0d7B3529f"
+    const contractAddress = "0x77F449057ff9f81c7B17Ea0B33d4ffCc5B8F8071"
     const contractAbi = [
         {
             inputs: [
@@ -86,7 +86,7 @@ let main = async () => {
                             type: "address",
                         },
                     ],
-                    internalType: "struct Vesting.organization",
+                    internalType: "struct Vesting.Organization",
                     name: "",
                     type: "tuple",
                 },
@@ -137,7 +137,7 @@ let main = async () => {
                             type: "bool",
                         },
                     ],
-                    internalType: "struct Vesting.stakeHolder",
+                    internalType: "struct Vesting.StakeHolder",
                     name: "",
                     type: "tuple",
                 },
@@ -170,12 +170,17 @@ let main = async () => {
             inputs: [
                 {
                     internalType: "address",
+                    name: "_organizationAddress",
+                    type: "address",
+                },
+                {
+                    internalType: "address",
                     name: "_stakeHolderAddress",
                     type: "address",
                 },
             ],
             name: "removeStakeHolder",
-            outputs: [{ internalType: "address", name: "", type: "address" }],
+            outputs: [],
             stateMutability: "nonpayable",
             type: "function",
         },
@@ -219,15 +224,15 @@ let main = async () => {
 document.getElementById("verify_btn").addEventListener("click", async () => {
     const organizationAddress =
         document.querySelector("#verify .in input").value
-    const organization =
-        await contractInstance.getOrganization(organizationAddress)
+
     const claim_msg1 = document.getElementById("claim_msg1")
     const claim_msg2 = document.getElementById("claim_msg2")
     const claim_msg3 = document.getElementById("claim_msg3")
     const claim_msg4 = document.getElementById("claim_msg4")
     const verify_msg1 = document.getElementById("verify_msg1")
     const verify_msg2 = document.getElementById("verify_msg2")
-    if (organization.owner !== "0x0000000000000000000000000000000000000000") {
+    try {
+        await contractInstance.getOrganization(organizationAddress)
         verify_msg1.style.transition = "ease 0.5s"
         verify_msg1.style.top = "0"
         setTimeout(() => {
@@ -237,60 +242,62 @@ document.getElementById("verify_btn").addEventListener("click", async () => {
             verify_page.style.display = "none"
             claim_page.style.display = "block"
         }, 3500)
-        claim_btn.addEventListener("click", async () => {
-            try {
-                await contractInstance.claimTokens(
-                    organizationAddress,
-                    stakeHolderAddress,
-                )
-                claim_msg1.style.transition = "ease 0.5s"
-                claim_msg1.style.top = "0"
-                setInterval(() => {
-                    claim_msg1.style.top = "-100%"
-                }, 3000)
-            } catch (error) {
-                if (
-                    error.message
-                        .toLowerCase()
-                        .includes("only stakeholder can claim tokens")
-                ) {
-                    claim_msg4.style.transition = "ease 0.5s"
-                    claim_msg4.style.top = "0"
-                    setInterval(() => {
-                        claim_msg4.style.top = "-100%"
-                    }, 3000)
-                } else if (
-                    error.message
-                        .toLowerCase()
-                        .includes("stake holder not whitelisted")
-                ) {
-                    claim_msg3.style.transition = "ease 0.5s"
-                    claim_msg3.style.top = "0"
-                    setInterval(() => {
-                        claim_msg3.style.top = "-100%"
-                    }, 3000)
-                } else if (
-                    error.message
-                        .toLowerCase()
-                        .includes("vesting period isn't over")
-                ) {
-                    claim_msg2.style.transition = "ease 0.5s"
-                    claim_msg2.style.top = "0"
-                    setInterval(() => {
-                        claim_msg2.style.top = "-100%"
-                    }, 3000)
-                } else {
-                    console.log(error)
-                }
-            }
-        })
-    } else {
+    } catch (error) {
+        console.log(error.message)
+        verify_msg2.style.position = "relative"
         verify_msg2.style.transition = "ease 0.5s"
         verify_msg2.style.top = "0"
-        setInterval(() => {
+        setTimeout(() => {
             verify_msg2.style.top = "-100%"
         }, 3000)
     }
+    claim_btn.addEventListener("click", async () => {
+        try {
+            await contractInstance.claimTokens(
+                organizationAddress,
+                stakeHolderAddress,
+            )
+            claim_msg1.style.transition = "ease 0.5s"
+            claim_msg1.style.top = "0"
+            setInterval(() => {
+                claim_msg1.style.top = "-100%"
+            }, 3000)
+        } catch (error) {
+            if (
+                error.message
+                    .toLowerCase()
+                    .includes("only stakeholder can claim tokens")
+            ) {
+                claim_msg4.style.transition = "ease 0.5s"
+                claim_msg4.style.top = "0"
+                setInterval(() => {
+                    claim_msg4.style.top = "-100%"
+                }, 3000)
+            } else if (
+                error.message
+                    .toLowerCase()
+                    .includes("stakeholder not whitelisted")
+            ) {
+                claim_msg3.style.transition = "ease 0.5s"
+                claim_msg3.style.top = "0"
+                setInterval(() => {
+                    claim_msg3.style.top = "-100%"
+                }, 3000)
+            } else if (
+                error.message
+                    .toLowerCase()
+                    .includes("vesting period isn't over")
+            ) {
+                claim_msg2.style.transition = "ease 0.5s"
+                claim_msg2.style.top = "0"
+                setInterval(() => {
+                    claim_msg2.style.top = "-100%"
+                }, 3000)
+            } else {
+                console.log(error)
+            }
+        }
+    })
 })
 
 main()

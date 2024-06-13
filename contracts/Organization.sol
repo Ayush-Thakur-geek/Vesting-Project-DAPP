@@ -3,13 +3,13 @@
 pragma solidity 0.8.24;
 
 contract Vesting {
-    struct organization {
+    struct Organization {
         string name;
         address token;
         address owner;
     }
 
-    struct stakeHolder {
+    struct StakeHolder {
         string stakeHolderType;
         address stakeHolderAddress;
         uint vestingPeriod;
@@ -17,11 +17,23 @@ contract Vesting {
         bool whitelisted;
     }
 
-    mapping(address => organization) public organizations;
-    mapping(address => stakeHolder[]) public stakeHolders;
+    mapping(address => Organization) public organizations;
+    mapping(address => StakeHolder[]) public stakeHolders;
+
+    modifier onlyOrganizationOwner(address _organizationAddress) {
+        require(
+            msg.sender == organizations[_organizationAddress].owner,
+            "Only organization owner can call this function"
+        );
+        _;
+    }
 
     function registerOrganization(string memory _name, address _token) public {
-        organizations[msg.sender] = organization(_name, _token, msg.sender);
+        require(
+            organizations[msg.sender].owner == address(0),
+            "Organization already registered"
+        );
+        organizations[msg.sender] = Organization(_name, _token, msg.sender);
     }
 
     function addStakeHolder(
@@ -31,37 +43,48 @@ contract Vesting {
         uint _vestingPeriod,
         uint _tokens,
         bool _whitelisted
-    ) public {
-        require(
-            msg.sender == organizations[msg.sender].owner,
-            "Only organization can add stakeholder"
-        );
-        stakeHolders[_organizationAddress].push(
-            stakeHolder(
-                _stakeHolderType,
-                _stakeHolderAddress,
-                _vestingPeriod,
-                _tokens,
-                _whitelisted
-            )
-        );
+    ) public onlyOrganizationOwner(_organizationAddress) {
+        StakeHolder memory newStakeHolder = StakeHolder({
+            stakeHolderType: _stakeHolderType,
+            stakeHolderAddress: _stakeHolderAddress,
+            vestingPeriod: _vestingPeriod,
+            tokens: _tokens,
+            whitelisted: _whitelisted
+        });
+        stakeHolders[_organizationAddress].push(newStakeHolder);
     }
 
     function removeStakeHolder(
+        address _organizationAddress,
         address _stakeHolderAddress
-    ) public returns (address) {
-        require(
-            msg.sender == organizations[msg.sender].owner,
-            "Only organization can remove stakeholder"
-        );
-        delete stakeHolders[_stakeHolderAddress];
-        return _stakeHolderAddress;
+    ) public onlyOrganizationOwner(_organizationAddress) {
+        uint index;
+        bool found = false;
+
+        for (uint i = 0; i < stakeHolders[_organizationAddress].length; i++) {
+            if (
+                stakeHolders[_organizationAddress][i].stakeHolderAddress ==
+                _stakeHolderAddress
+            ) {
+                index = i;
+                found = true;
+                break;
+            }
+        }
+
+        require(found, "Stakeholder not found");
+
+        // Move the last element to the position to delete and pop the array
+        stakeHolders[_organizationAddress][index] = stakeHolders[
+            _organizationAddress
+        ][stakeHolders[_organizationAddress].length - 1];
+        stakeHolders[_organizationAddress].pop();
     }
 
     function getStakeHolder(
         address _organizationAddress,
         address _stakeHolderAddress
-    ) public view returns (stakeHolder memory) {
+    ) public view returns (StakeHolder memory) {
         for (uint i = 0; i < stakeHolders[_organizationAddress].length; i++) {
             if (
                 stakeHolders[_organizationAddress][i].stakeHolderAddress ==
@@ -70,15 +93,14 @@ contract Vesting {
                 return stakeHolders[_organizationAddress][i];
             }
         }
-        revert("No stake holder of the mentioned address present.");
+        revert("Stakeholder not found");
     }
 
     function getOrganization(
         address _organizationAddress
-    ) public view returns (organization memory) {
+    ) public view returns (Organization memory) {
         require(
-            organizations[_organizationAddress].owner !=
-                0x0000000000000000000000000000000000000000,
+            organizations[_organizationAddress].owner != address(0),
             "Organization not registered"
         );
         return organizations[_organizationAddress];
@@ -88,42 +110,43 @@ contract Vesting {
         address _organizationAddress,
         address _stakeHolderAddress
     ) public {
-        bool isStakeHolder = false;
+        uint index;
+        bool found = false;
+
         for (uint i = 0; i < stakeHolders[_organizationAddress].length; i++) {
             if (
                 stakeHolders[_organizationAddress][i].stakeHolderAddress ==
                 _stakeHolderAddress
             ) {
-                require(
-                    stakeHolders[_organizationAddress][i].stakeHolderAddress ==
-                        msg.sender,
-                    "Only stakeholder can claim tokens"
-                );
-                require(
-                    stakeHolders[_organizationAddress][i].whitelisted == true,
-                    "Stake Holder not whitelisted"
-                );
-                require(
-                    stakeHolders[_organizationAddress][i].vestingPeriod <
-                        block.number,
-                    "Vesting period isn't over"
-                );
-                isStakeHolder = true;
-                stakeHolders[_organizationAddress][i].tokens = 0;
-                stakeHolders[_organizationAddress][i].vestingPeriod = 0;
-                stakeHolder memory temp = stakeHolders[_organizationAddress][i];
-                stakeHolders[_organizationAddress][i] = stakeHolders[
-                    _organizationAddress
-                ][stakeHolders[_organizationAddress].length - 1];
-                stakeHolders[_organizationAddress][
-                    stakeHolders[_organizationAddress].length - 1
-                ] = temp;
-                stakeHolders[_organizationAddress].pop();
+                index = i;
+                found = true;
                 break;
             }
         }
-        if (!isStakeHolder) {
-            revert("Stakeholder not found");
-        }
+
+        require(found, "Stakeholder not found");
+        StakeHolder storage stakeHolder = stakeHolders[_organizationAddress][
+            index
+        ];
+
+        require(
+            stakeHolder.stakeHolderAddress == msg.sender,
+            "Only stakeholder can claim tokens"
+        );
+        require(stakeHolder.whitelisted, "Stakeholder not whitelisted");
+        require(
+            stakeHolder.vestingPeriod < block.number,
+            "Vesting period not over"
+        );
+
+        // Reset stakeholder data
+        stakeHolder.tokens = 0;
+        stakeHolder.vestingPeriod = 0;
+
+        // Remove the stakeholder by moving the last element to this position and popping the array
+        stakeHolders[_organizationAddress][index] = stakeHolders[
+            _organizationAddress
+        ][stakeHolders[_organizationAddress].length - 1];
+        stakeHolders[_organizationAddress].pop();
     }
 }
